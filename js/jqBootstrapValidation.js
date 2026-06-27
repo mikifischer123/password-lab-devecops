@@ -7,6 +7,8 @@
  *
  * http://ReactiveRaven.github.com/jqBootstrapValidation/
  */
+/* global jQuery */
+/* eslint-disable security/detect-object-injection, security/detect-non-literal-regexp */
 
 (function($) {
 
@@ -101,7 +103,7 @@
           // *snort sniff snuffle*
 
           if (settings.options.sniffHtml) {
-            var message = "";
+            var message;
             // ---------------------------------------------------------
             //                                                   PATTERN
             // ---------------------------------------------------------
@@ -225,7 +227,7 @@
           }
 
           // Get extra ones defined on the element's data attributes
-          $.each($this.data(), function(i, el) {
+          $.each($this.data(), function(i) {
             var parts = i.replace(/([A-Z])/g, ",$1").split(",");
             if (parts[0] === "validation" && parts[1]) {
               validatorNames.push(parts[1]);
@@ -533,13 +535,16 @@
 
       },
       collectErrors: function(includeEmpty) {
+        if (typeof includeEmpty === "undefined") {
+          includeEmpty = true;
+        }
 
         var errorMessages = {};
         this.each(function(i, el) {
           var $el = $(el);
           var name = $el.attr("name");
           var errors = $el.triggerHandler("validation.validation", {
-            includeEmpty: true
+            includeEmpty: includeEmpty
           });
           errorMessages[name] = $.extend(true, errors, errorMessages[name]);
         });
@@ -690,7 +695,7 @@
       },
       required: {
         name: "required",
-        init: function($this, name) {
+        init: function() {
           return {};
         },
         validate: function($this, value, validator) {
@@ -816,7 +821,7 @@
       validemail: {
         name: "Validemail",
         type: "regex",
-        regex: "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\.[A-Za-z]{2,4}",
+        regex: "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}",
         message: "Not a valid email address<!-- data-validator-validemail-message to override -->"
       },
       passwordagain: {
@@ -838,13 +843,13 @@
       number: {
         name: "Number",
         type: "regex",
-        regex: "([+-]?\\\d+(\\\.\\\d*)?([eE][+-]?[0-9]+)?)?",
+        regex: "([+-]?\\d+(\\.\\d*)?([eE][+-]?[0-9]+)?)?",
         message: "Must be a number<!-- data-validator-number-message to override -->"
       },
       integer: {
         name: "Integer",
         type: "regex",
-        regex: "[+-]?\\\d+",
+        regex: "[+-]?\\d+",
         message: "No decimal places allowed<!-- data-validator-integer-message to override -->"
       },
       positivenumber: {
@@ -930,7 +935,7 @@
 
   };
 
-  $.jqBootstrapValidation = function(options) {
+$.jqBootstrapValidation = function() {
     $(":input").not("[type=image],[type=submit]").jqBootstrapValidation.apply(this, arguments);
   };
 
