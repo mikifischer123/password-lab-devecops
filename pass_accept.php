@@ -1,3 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/php-vendor/autoload.php';
+
+use App\PasswordValidator;
+
+$password = (string) ($_POST['pws'] ?? '');
+$secret = (string) ($_POST['srt'] ?? '');
+$firstName = (string) ($_POST['fName'] ?? '');
+$isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
+$isAccepted = $isPost && (new PasswordValidator())->isValid($password, $secret, $firstName);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,8 +37,9 @@
   <div class="container py-5">
       <div class="col-12 col-md-8 col-lg-6 mx-auto">
           <div style="background-color: rgb(255,255,255,0.4)" class="p-3 shadow">
-            <?php
-                if ($_POST["pws"] === base64_decode("VGgxNV8xNV81VFIwbjY") && $_POST["srt"] === "1352" && !empty($_POST["fName"])) {
+            <?php if ($isAccepted): ?>
+              <p class="font-weight-bold">Access granted for <?php echo htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'); ?>.</p>
+              <?php
                   echo 'var div_1 = document.querySelector("#d1");<br>
                                   var div_2 = document.querySelector("#d2");<br>
                             var header = document.querySelector("#h");<br>
@@ -62,8 +78,14 @@
                             }<br><br>
                             
                             A1();';
-                }
-                ?>
+              ?>
+            <?php elseif ($isPost): ?>
+              <p class="text-danger font-weight-bold">Access denied. Check the password, secret code and first name.</p>
+              <a class="btn btn-primary" href="password-form.php">Try again</a>
+            <?php else: ?>
+              <p class="font-weight-bold">Submit the password form to unlock the JavaScript code.</p>
+              <a class="btn btn-primary" href="password-form.php">Open form</a>
+            <?php endif; ?>
           </div>
       </div>      
   </div>
